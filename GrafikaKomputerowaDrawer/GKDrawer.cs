@@ -13,9 +13,6 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 // TODO: 30.10
 
 // - wielokat odsuniety
-
-// - dokumentacja
-
 //// ++++
 /// popup udana serializacja
 
@@ -74,7 +71,7 @@ namespace GrafikaKomputerowaDrawer
                 this.Deserialize(".\\startData.xml");
             }
         }
-                
+
         private void Canvas_Paint(object sender, PaintEventArgs e)
         {
             Brush backgroundBrush = new SolidBrush(Color.White);
@@ -87,7 +84,7 @@ namespace GrafikaKomputerowaDrawer
                 if (drawOffsetPoly && obj.Type == ObjectTypeGK.Poly)
                 {
                     PolygonGK poly = obj as PolygonGK;
-                    poly.DrawOffsetPoly(e, offSet);
+                    if(poly.completed) poly.DrawOffsetPoly(e, drawingAlg, offSet);
                 }
             }
             HashSet<ConstraintGK> consts = new HashSet<ConstraintGK>(points.Select(p => p.constraint).OfType<ConstraintGK>());
@@ -161,7 +158,7 @@ namespace GrafikaKomputerowaDrawer
 
         private void ConstraintBox_MouseMove(object sender, EventArgs e)
         {
-                bool updateData = false;
+            bool updateData = false;
             var selectedPoints = points.ToList().FindAll(p => p.IsSelected == true);
             if (selectedPoints.Count == 2)
             {

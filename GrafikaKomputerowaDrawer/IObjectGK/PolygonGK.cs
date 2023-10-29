@@ -82,6 +82,7 @@ namespace GrafikaKomputerowaDrawer
             {
                 v.Draw(e, drawing);
             }
+            //new PolygonGK(getPointsWithMinimumDist(20)).vectors.ForEach(v => v.Draw(e, drawing));
             //foreach(PointGK p in points)
             //    p.Draw(e, drawing);
 
@@ -93,49 +94,8 @@ namespace GrafikaKomputerowaDrawer
                 else
                     e.Graphics.FillPolygon(Parameters.SelectedPolygonBrush, this.points.Select(p => (Point)p).ToArray());
             }
-            if (false)
-            {
-                List<VectGK> offsetEdges = new List<VectGK>();
-                int offset = 10;
-                if (points.Count > 2)
-                {
-                    for (int i = 0; i < points.Count; i++)
-                    {
-                        PointGK p1 = points[i];
-                        PointGK p2 = points[(i + 1) % points.Count];
-                        (double outNX, double outNY) = getOutNormal(p1, p2);
-                        int offsetX = (int)(outNX * offset);
-                        int offsetY = (int)(outNY * offset);
-                        //int max = Math.Max(Math.Abs(offsetX), Math.Abs(offsetY));
-                        PointGK mp = new PointGK(((p1.X + p2.X) / 2) + (offsetX  * offset / 2), ((p1.Y + p2.Y) / 2) + (offsetY * offset / 2));
-                        mp.Draw(e);
-                        if (IsInPolygon(new PointGK(((p1.X + p2.X) / 2) + (offsetX / 10), ((p1.Y + p2.Y) / 2) + (offsetY / 10))))
-                        {
-                            offsetX *= -1;
-                            offsetY *= -1;
-                        }
-                        p1 = new PointGK(p1.X + offsetX, p1.Y + offsetY);
-                        p2 = new PointGK(p2.X + offsetX, p2.Y + offsetY);
-
-                        VectGK offsetEdge = new VectGK(p1, p2);
-                        offsetEdge.Draw(e);
-                        offsetEdges.Add(offsetEdge);
-                    }
-                    for (int i = 0; i < offsetEdges.Count; i++)
-                    {
-                        VectGK e1 = offsetEdges[i];
-                        VectGK e2 = offsetEdges[(i + 1) % offsetEdges.Count];
-
-                        PointGK p = GetLinesIntersect(e1, e2);
-                        if (p != null && this.DistanceTo(p) >= offset)
-                        {
-                            // && !IsInPolygon(p)
-                            p.IsSelected = true;
-                            p.Draw(e);
-                        }
-                    }
-                }
-            }
+            
+            
         }
         public PointGK[] GetPoints()
         {
@@ -146,10 +106,13 @@ namespace GrafikaKomputerowaDrawer
             foreach (PointGK p in points)
                 p.Offset(x, y);
         }
-        public PolygonGK DrawOffsetPoly(PaintEventArgs e, int offset)
+        public PolygonGK DrawOffsetPoly(PaintEventArgs e, DrawingGK drawing, int offset)
         {
             List<VectGK> offsetEdges = new List<VectGK>();
             List<PointGK> offsetPoints = new List<PointGK>();
+            List<PointGK> points = hullOffset(offset);
+            PolygonGK hullPoly = new PolygonGK(hullOffset(offset))
+            { completed = true };
 
             for (int i = 0; i < points.Count; i++)
             {
@@ -159,7 +122,7 @@ namespace GrafikaKomputerowaDrawer
                 int offsetX = (int)(outNX * offset);
                 int offsetY = (int)(outNY * offset);
                 // mp.Draw(e);
-                if (IsInPolygon(new PointGK((p1.X + p2.X) / 2 + Math.Sign(offsetX), (p1.Y + p2.Y) / 2 + Math.Sign(offsetY) )))
+                if (hullPoly.IsInPolygon(new PointGK((p1.X + p2.X) / 2 + Math.Sign(offsetX), (p1.Y + p2.Y) / 2 + Math.Sign(offsetY) )))
                 {
                     offsetX *= -1;
                     offsetY *= -1;
@@ -185,15 +148,9 @@ namespace GrafikaKomputerowaDrawer
                     //p.Draw(e);
                 }
             }
-            //points.ForEach(p => p.IsSelected = false);
-            //var parts = PolygonGK.GetOutterBound(points, offset);
-            //foreach(var p in parts.Item2)
-            //{
-            //    p.IsSelected = true;
-            //}
             PolygonGK offsetPoly = new PolygonGK(offsetPoints)  ;
             offsetPoly.completed = true;
-            offsetPoly.Draw(e);
+            offsetPoly.vectors.ForEach(v => v.Draw(e, drawing));
             return offsetPoly;
         }
 
@@ -278,52 +235,94 @@ namespace GrafikaKomputerowaDrawer
             return dist;
 
         }
-        private static (List<PointGK>, List<PointGK>) GetOutterBound(List<PointGK> points, int offset)
+        
+        private List<PointGK> hullOffset(int offset)
         {
-            List<PointGK> part1 = new List<PointGK>();
-            List<PointGK> part2 = new List<PointGK>();
-
-            for (int i = 0; i < points.Count; i++)
+            var hull = PolygonGK.ConvexHull(points.ToArray()).ToList();
+            HashSet<PointGK> okP = new HashSet<PointGK>(hull);
+            for(int i=0; i<hull.Count; i++)
             {
-                for (int j = 0; j < points.Count; j++)
+                int ind0 = i;
+                int ind1 = (i + 1) % hull.Count;
+                ind0 = points.FindIndex(p => p == hull[ind0]);
+                ind1 = points.FindIndex(p => p == hull[ind1]);
+                bool goOtherDirection = false;
+                if(Math.Abs(ind0 - ind1) != 1 && points[ind0].Distance(points[ind1]) >=  2 * offset)
                 {
-                    if (Math.Abs(i - j) > 1 && points[i].Distance(points[j]) <= 2 * offset)
+                    int maxInd = Math.Max(ind0, ind1);
+                    int minInd = Math.Min(ind0, ind1);
+                    for(int k=minInd + 1; k<maxInd; k++)
                     {
-                        part1 = points.GetRange(i, Math.Abs(j - i));
-                        part2 = points.FindAll(p => !part1.Contains(p));
+                        if (hull.Contains(points[k]))
+                        {
+                            goOtherDirection = true;
+                            break;
+                        }
+                        okP.Add(points[k]);
+                    }
+                    if(goOtherDirection)
+                    {
+                        for (int k = maxInd + 1; k != minInd; k++)
+                        {
+                            k %= points.Count;
+                            if (k == minInd) break;
+                            okP.Add(points[k]);
+                        }
                     }
                 }
             }
 
-            return (part1, part2);
+            return this.points.FindAll(p => okP.Contains(p));
         }
-        private List<PointGK> GetCloseOffset(List<PointGK> points, int offset) 
-        { 
-            PolygonGK polygon = new PolygonGK();     
-            var sortedPoints = points.OrderBy(p => DistanceTo(p)).Where(p => this.DistanceTo(p) >= offset - Math.Sqrt(2) - 1).ToList();
-            if (sortedPoints.Count < 3) return null;
 
-            for (int i= 0; i < sortedPoints.Count; i++)
+       
+        private static PointGK[] ConvexHull(PointGK[] points)
+        {
+            if (points.Length == 1) return points;
+
+            (double minX, double minY) = (points[0].X, points[0].Y);
+
+            for (int i = 1; i < points.Length; i++)
             {
-                if(i < 3) polygon.Add(sortedPoints[i]);
-                if (this.points.TrueForAll(p => polygon.IsInPolygon(p)))
-                    break;
-                else
-                    polygon.Add(sortedPoints[i]);
+                if (points[i].Y > minY || points[i].Y == minY && points[i].X < minX)
+                {
+                    (minX, minY) = (points[i].X, points[i].Y);
+                    (points[0], points[i]) = (points[i], points[0]);
+                }
             }
 
-            if (polygon.N < 3) 
-                return null;
+            Array.Sort(points, (a, b) =>
+            {
+                int cros = -Cross(points[0], a, b);
+                if (cros != 0) return cros;
+                else if (a.X.CompareTo(b.X) != 0) return a.X.CompareTo(b.X);
+                else return -a.Y.CompareTo(b.Y);
+            });
 
-            return SortAround(polygon.points);
+            List<PointGK> lista = points.ToList();
+            for (int i = 1; i < lista.Count - 1; i++)
+            {
+                if (Cross(lista[i - 1], lista[i], lista[i + 1]) == 0)
+                {
+                    lista.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            List<PointGK> S = new List<PointGK>();
+            S.Add(lista[0]);
+            S.Add(lista[1]);
+            for (int k = 2; k < lista.Count; k++)
+            {
+                while (S.Count >= 2 && Cross(S[S.Count - 2], S[S.Count - 1], lista[k]) != 1)
+                {
+                    S.RemoveAt(S.Count - 1);
+                }
+                S.Add(lista[k]);
+            }
+
+            return S.ToArray();
         }
 
-        private static List<PointGK> SortAround(List<PointGK> points) 
-        { 
-            int meanX = points.Sum(p => p.X)/ points.Count;
-            int meanY = points.Sum(p => p.Y)/ points.Count;
-            return points.OrderBy(p => Math.Atan2(p.Y-meanY, p.X - meanX)).ToList();
-
-        }
     }
 }

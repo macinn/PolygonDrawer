@@ -60,58 +60,45 @@
                 case Keys.ControlKey:
                     CtrlPressed = true;
                     break;
-                case Keys.Q:
-                    if (windowState == DrawerState.SelectState)
-                    {
-                        List<IObjectGK> splitable = objects.Where(
-                            o => o.Type==ObjectTypeGK.Vect || o.Type == ObjectTypeGK.Poly).ToList();
-                        foreach (IObjectGK? o in splitable)
-                        {
-                            if (o.Type == ObjectTypeGK.Vect && o.IsSelected)
-                            {
-                                PointGK[] points = o.GetPoints();
-                                if (points.Length == 2)
-                                {
-                                    objects.Remove(o);
-                                    PointGK newPoint = new PointGK((points[0].X + points[1].X) / 2, (points[0].Y + points[1].Y) / 2);
-                                    VectGK v = GetNewVect(points[0], newPoint);
-                                    v.IsSelected = true;
-                                    v = GetNewVect(newPoint, points[1]);
-                                    v.IsSelected = true;
-                                    this.points.Add(newPoint);
-                                }
-                            }
-                            else if(o.Type == ObjectTypeGK.Poly)
-                            {
-                                var poly = o as PolygonGK;
-                                var vectors2split = poly.vectors.Where(v=> v.IsSelected).ToList();
-                                foreach(VectGK v in  vectors2split)
-                                {
-                                    PointGK newPoint = new PointGK((v.p1.X + v.p2.X) / 2, (v.p1.Y + v.p2.Y) / 2);
-                                    int ind1 = poly.GetPoints().ToList().FindIndex(0,p => p == v.p1);
-                                    int ind2 = poly.GetPoints().ToList().FindIndex(0,p => p == v.p2);
-                                    poly.Add(newPoint,Math.Min(ind1, ind2)+1);
-                                    this.points.Add(newPoint);
-                                }
+                //case Keys.Q:
+                //    if (windowState == DrawerState.SelectState)
+                //    {
+                //        List<IObjectGK> splitable = objects.Where(
+                //            o => o.Type==ObjectTypeGK.Vect || o.Type == ObjectTypeGK.Poly).ToList();
+                //        foreach (IObjectGK? o in splitable)
+                //        {
+                //            if (o.Type == ObjectTypeGK.Vect && o.IsSelected)
+                //            {
+                //                PointGK[] points = o.GetPoints();
+                //                if (points.Length == 2)
+                //                {
+                //                    objects.Remove(o);
+                //                    PointGK newPoint = new PointGK((points[0].X + points[1].X) / 2, (points[0].Y + points[1].Y) / 2);
+                //                    VectGK v = GetNewVect(points[0], newPoint);
+                //                    v.IsSelected = true;
+                //                    v = GetNewVect(newPoint, points[1]);
+                //                    v.IsSelected = true;
+                //                    this.points.Add(newPoint);
+                //                }
+                //            }
+                //            else if(o.Type == ObjectTypeGK.Poly)
+                //            {
+                //                var poly = o as PolygonGK;
+                //                var vectors2split = poly.vectors.Where(v=> v.IsSelected).ToList();
+                //                foreach(VectGK v in  vectors2split)
+                //                {
+                //                    PointGK newPoint = new PointGK((v.p1.X + v.p2.X) / 2, (v.p1.Y + v.p2.Y) / 2);
+                //                    int ind1 = poly.GetPoints().ToList().FindIndex(0,p => p == v.p1);
+                //                    int ind2 = poly.GetPoints().ToList().FindIndex(0,p => p == v.p2);
+                //                    poly.Add(newPoint,Math.Min(ind1, ind2)+1);
+                //                    this.points.Add(newPoint);
+                //                }
 
-                            }
-                        }
-                        Canvas.Invalidate();
-                    }
-                    break;
-                case Keys.X:
-                    foreach (IObjectGK obj in objects)
-                    {
-                        if (obj.Type == ObjectTypeGK.Poly)
-                        {
-                            PolygonGK offsetPoly = ((PolygonGK)obj).DrawOffsetPoly(null, 20);
-                            objects.Add(offsetPoly);
-                            Canvas.Invalidate();
-                            break;
-                        }
-                    }
-
-                    break;
+                //            }
+                //        }
+                //        Canvas.Invalidate();
+                //    }
+                //    break;
 
             }
             if (e.Modifiers == Keys.Control)

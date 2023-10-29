@@ -48,6 +48,8 @@
             ConstraintButton = new Button();
             OffsetPolyBox = new GroupBox();
             OffsetInput = new NumericUpDown();
+            PointBox = new GroupBox();
+            PointTextBox = new TextBox();
             menuStrip1 = new MenuStrip();
             optionsToolStripMenuItem = new ToolStripMenuItem();
             constrintsOnSegmentToolStripMenuItem = new ToolStripMenuItem();
@@ -67,6 +69,7 @@
             ConstraintBox.SuspendLayout();
             OffsetPolyBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)OffsetInput).BeginInit();
+            PointBox.SuspendLayout();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)ConstraintErrorProvider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)OffsetErrorProvider).BeginInit();
@@ -119,10 +122,11 @@
             flowLayoutPanel1.Controls.Add(DrawingAlgorithmBox);
             flowLayoutPanel1.Controls.Add(ConstraintBox);
             flowLayoutPanel1.Controls.Add(OffsetPolyBox);
+            flowLayoutPanel1.Controls.Add(PointBox);
             flowLayoutPanel1.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanel1.Location = new Point(0, 28);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(163, 593);
+            flowLayoutPanel1.Size = new Size(165, 623);
             flowLayoutPanel1.TabIndex = 0;
             // 
             // PolygonButton
@@ -308,6 +312,24 @@
             OffsetInput.Value = new decimal(new int[] { 10, 0, 0, 0 });
             OffsetInput.ValueChanged += numericUpDown1_ValueChanged;
             // 
+            // PointBox
+            // 
+            PointBox.Controls.Add(PointTextBox);
+            PointBox.Location = new Point(3, 495);
+            PointBox.Name = "PointBox";
+            PointBox.Size = new Size(159, 70);
+            PointBox.TabIndex = 1006;
+            PointBox.TabStop = false;
+            PointBox.Text = "SelectedPoint";
+            // 
+            // PointTextBox
+            // 
+            PointTextBox.Location = new Point(12, 30);
+            PointTextBox.Name = "PointTextBox";
+            PointTextBox.ReadOnly = true;
+            PointTextBox.Size = new Size(125, 27);
+            PointTextBox.TabIndex = 0;
+            // 
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
@@ -406,6 +428,8 @@
             ConstraintBox.PerformLayout();
             OffsetPolyBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)OffsetInput).EndInit();
+            PointBox.ResumeLayout(false);
+            PointBox.PerformLayout();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)ConstraintErrorProvider).EndInit();
@@ -444,5 +468,7 @@
         private ToolStripMenuItem drawOffsetPolygonToolStripMenuItem;
         private ErrorProvider OffsetErrorProvider;
         private NumericUpDown OffsetInput;
+        private GroupBox PointBox;
+        private TextBox PointTextBox;
     }
 }

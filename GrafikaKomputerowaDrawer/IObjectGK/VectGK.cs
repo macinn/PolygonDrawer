@@ -99,36 +99,48 @@ namespace GrafikaKomputerowaDrawer
 
         public void Draw(PaintEventArgs e, DrawingGK drawing = DrawingGK.Default)
         {
-            p1.Draw(e);
-            p2.Draw(e);
-            switch (drawing)
+
+            //if (Math.Abs(p1.X) > int.MaxValue / 2 || Math.Abs(p1.Y) > int.MaxValue / 2 || Math.Abs(p2.X) > int.MaxValue / 2 || Math.Abs(p2.Y) > int.MaxValue / 2) 
+            //    return;
+            try
             {
-                case DrawingGK.Default:
-                    if (!this.isSelected)
-                        e.Graphics.DrawLine(Parameters.Pen, p1, p2);                    
-                    else
-                        e.Graphics.DrawLine(Parameters.SelectedPen, p1, p2);                                       
-                    break;
-                case DrawingGK.Bres:
-                    //line(p1.X, p1.Y, p2.X, p2.Y);
-                    //https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-                    int dy = p2.Y - p1.Y;
-                    int dx = p2.X - p1.X;
-                    if (Math.Abs(dy) < Math.Abs(dx))
-                    {
-                        if (p1.X > p2.X)
-                            plotLineLow(p2, p1);
+
+
+                p1.Draw(e);
+                p2.Draw(e);
+                switch (drawing)
+                {
+                    case DrawingGK.Default:
+                        if (!this.isSelected)
+                            e.Graphics.DrawLine(Parameters.Pen, p1, p2);
                         else
-                            plotLineLow(p1, p2);
-                    }
-                    else
-                    {
-                        if (p1.Y > p2.Y)
-                            plotLineHigh(p2, p1);
+                            e.Graphics.DrawLine(Parameters.SelectedPen, p1, p2);
+                        break;
+                    case DrawingGK.Bres:
+                        //line(p1.X, p1.Y, p2.X, p2.Y);
+                        //https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+                        int dy = p2.Y - p1.Y;
+                        int dx = p2.X - p1.X;
+                        if (Math.Abs(dy) < Math.Abs(dx))
+                        {
+                            if (p1.X > p2.X)
+                                plotLineLow(p2, p1);
+                            else
+                                plotLineLow(p1, p2);
+                        }
                         else
-                            plotLineHigh(p1, p2);
-                    }
-                    break;
+                        {
+                            if (p1.Y > p2.Y)
+                                plotLineHigh(p2, p1);
+                            else
+                                plotLineHigh(p1, p2);
+                        }
+                        break;
+                }
+            }
+            catch(OverflowException)
+            {
+
             }
 
             void plotLineHigh(PointGK p1, PointGK p2)

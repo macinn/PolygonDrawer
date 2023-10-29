@@ -76,6 +76,7 @@ namespace GrafikaKomputerowaDrawer
                         }
                         foreach (var obj in objectsToBeSelected) obj.CheckClick((MouseEventArgs)e);
                     }
+                    UpdatePointData();
                     Canvas.Invalidate();
                     break;
                 case DrawerState.PolygonState:
@@ -108,6 +109,12 @@ namespace GrafikaKomputerowaDrawer
                     Canvas.Invalidate();
                     break;
             }
+        }
+        private void UpdatePointData()
+        {
+            var data = points.ToList().FindAll(p => p.IsSelected).Select(p => $"({p.X}, {p.Y})").ToList();
+            PointTextBox.Text = String.Join(", ", data);
+
         }
         private bool AddPointToObject(PointGK point, MouseEventArgs e)
         {

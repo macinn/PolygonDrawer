@@ -28,12 +28,12 @@ namespace GrafikaKomputerowaDrawer
 
         public double Distance(PointGK p)
         {
-            return Math.Sqrt(((p.X - X) * (p.X - X)) + ((p.Y - Y) * (p.Y - Y)));
+            return Distance(p.X, p.Y);
         }
 
         public double Distance(int X, int Y)
         {
-            return Math.Sqrt(((X - this.X) * (X - this.X)) + ((Y - this.Y) * (Y - this.Y)));
+            return Math.Sqrt((X - this.X) * (X - this.X) + (Y - this.Y) * (Y - this.Y));
         }
 
         public PointGK(int x, int y)
