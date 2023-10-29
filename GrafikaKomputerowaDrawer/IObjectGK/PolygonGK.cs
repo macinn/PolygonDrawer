@@ -369,18 +369,18 @@ namespace GrafikaKomputerowaDrawer
                 
             }
 
-            foreach (var innerPoly in innerLists)
-            {
-                var current = innerPoly;
-                var trueInner = hullOffset(current, offset);
-                while (trueInner[0].Count != current.Count)
-                {
-                    current = trueInner[0];
-                    trueInner = hullOffset(current, offset);
-                }
-                outputLists.Add(trueInner[0]);
-            }
-            //outputLists.AddRange(innerLists);
+            //foreach (var innerPoly in innerLists)
+            //{
+            //    var current = innerPoly;
+            //    var trueInner = hullOffset(current, offset);
+            //    while (trueInner[0].Count != current.Count)
+            //    {
+            //        current = trueInner[0];
+            //        trueInner = hullOffset(current, offset);
+            //    }
+            //    outputLists.Add(trueInner[0]);
+            //}
+            outputLists.AddRange(innerLists);
             outputLists.Insert(0, this.points.FindAll(p => okP.Contains(p)));
             
             return outputLists;
