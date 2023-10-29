@@ -106,12 +106,33 @@ namespace GrafikaKomputerowaDrawer
             foreach (PointGK p in points)
                 p.Offset(x, y);
         }
-        public PolygonGK DrawOffsetPoly(PaintEventArgs e, DrawingGK drawing, int offset)
+        public List<PolygonGK> DrawOffsetPoly(PaintEventArgs e, DrawingGK drawing, int offset)
+        {
+            List<List<PointGK>> lists = hullOffset(this.points, offset);
+            List<PolygonGK> offsetPolygons = new List<PolygonGK>();
+
+            
+            PolygonGK offsetPoly = GetOffsetPolyFromPoints(lists[0], offset);
+            offsetPoly.vectors.ForEach(v => v.Draw(e, drawing));
+            offsetPolygons.Add(offsetPoly);
+
+            for (int k = 1; k < lists.Count; k++)
+            {
+                //lists[k].ForEach(p => { p.IsSelected = true; p.Draw(e, drawing); });
+                PolygonGK innerOffsetPoly = GetInnerOffsetPoly(lists[k], offset);
+                innerOffsetPoly.points.ForEach(v => v.Draw(e, drawing));
+                innerOffsetPoly.vectors.ForEach(v => v.Draw(e, drawing));
+                //offsetPolygons.Add(innerOffsetPoly);
+            }
+            
+            return offsetPolygons;
+        }
+
+        private PolygonGK GetOffsetPolyFromPoints(List<PointGK> points, int offset)
         {
             List<VectGK> offsetEdges = new List<VectGK>();
             List<PointGK> offsetPoints = new List<PointGK>();
-            List<PointGK> points = hullOffset(offset);
-            PolygonGK hullPoly = new PolygonGK(hullOffset(offset))
+            PolygonGK hullPoly = new PolygonGK(points)
             { completed = true };
 
             for (int i = 0; i < points.Count; i++)
@@ -121,8 +142,7 @@ namespace GrafikaKomputerowaDrawer
                 (double outNX, double outNY) = getOutNormal(p1, p2);
                 int offsetX = (int)(outNX * offset);
                 int offsetY = (int)(outNY * offset);
-                // mp.Draw(e);
-                if (hullPoly.IsInPolygon(new PointGK((p1.X + p2.X) / 2 + Math.Sign(offsetX), (p1.Y + p2.Y) / 2 + Math.Sign(offsetY) )))
+                if (hullPoly.IsInPolygon(new PointGK((p1.X + p2.X) / 2 + Math.Sign(offsetX), (p1.Y + p2.Y) / 2 + Math.Sign(offsetY))))
                 {
                     offsetX *= -1;
                     offsetY *= -1;
@@ -131,7 +151,6 @@ namespace GrafikaKomputerowaDrawer
                 p2 = new PointGK(p2.X + offsetX, p2.Y + offsetY);
 
                 VectGK offsetEdge = new VectGK(p1, p2);
-                // offsetEdge.Draw(e);
                 offsetEdges.Add(offsetEdge);
             }
             for (int i = 0; i < offsetEdges.Count; i++)
@@ -142,15 +161,59 @@ namespace GrafikaKomputerowaDrawer
                 PointGK p = GetLinesIntersect(e1, e2);
                 if (p != null && this.DistanceTo(p) >= offset - Math.Sqrt(2) - 1)
                 {
-                    // this.DistanceTo(p) >= offset - Math.Sqrt(2) - 1
                     offsetPoints.Add(p);
-                    //p.IsSelected = true;
-                    //p.Draw(e);
                 }
             }
-            PolygonGK offsetPoly = new PolygonGK(offsetPoints)  ;
+            PolygonGK offsetPoly = new PolygonGK(offsetPoints);
             offsetPoly.completed = true;
-            offsetPoly.vectors.ForEach(v => v.Draw(e, drawing));
+            return offsetPoly;
+        }
+        private PolygonGK GetInnerOffsetPoly(List<PointGK> points, int offset)
+        {
+            //int minX = this.points.Min(p => p.X);
+            //int minY = this.points.Min(p => p.Y);
+            //int maxX = this.points.Max(p => p.X);
+            //int maxY = this.points.Max(p => p.Y);
+
+            PolygonGK innerPoly = new PolygonGK(points);
+            innerPoly.completed = true;
+            List<VectGK> offsetEdges = new List<VectGK>();
+            List<PointGK> offsetPoints = new List<PointGK>();
+
+            for (int i = 0; i < points.Count - 1; i++)
+            {
+                PointGK p1 = points[i];
+                PointGK p2 = points[(i + 1) % points.Count];
+                (double outNX, double outNY) = getOutNormal(p1, p2);
+                int offsetX = (int)(outNX * offset);
+                int offsetY = (int)(outNY * offset);
+                if (this.IsInPolygon(new PointGK((p1.X + p2.X) / 2 + Math.Sign(offsetX), (p1.Y + p2.Y) / 2 + Math.Sign(offsetY))))
+                {
+                    offsetX *= -1;
+                    offsetY *= -1;
+                }
+                p1 = new PointGK(p1.X + offsetX, p1.Y + offsetY);
+                p2 = new PointGK(p2.X + offsetX, p2.Y + offsetY);
+
+                VectGK offsetEdge = new VectGK(p1, p2);
+                offsetEdges.Add(offsetEdge);
+            }
+            for (int i = 0; i < offsetEdges.Count; i++)
+            {
+                VectGK e1 = offsetEdges[i];
+                VectGK e2 = offsetEdges[(i + 1) % offsetEdges.Count];
+
+                PointGK p = GetLinesIntersect(e1, e2);
+                if (p != null && this.DistanceTo(p) >= offset - Math.Sqrt(2) - 1)
+                {
+                    //if(p.X > minX && p.Y > minY && p.X < maxX && p.Y < maxY)
+
+                    if (innerPoly.IsInPolygon(p))
+                        offsetPoints.Add(p);
+                }
+            }
+            PolygonGK offsetPoly = new PolygonGK(offsetPoints);
+            offsetPoly.completed = true;
             return offsetPoly;
         }
 
@@ -236,10 +299,14 @@ namespace GrafikaKomputerowaDrawer
 
         }
         
-        private List<PointGK> hullOffset(int offset)
+        private List<List<PointGK>> hullOffset(List<PointGK> points, int offset)
         {
             var hull = PolygonGK.ConvexHull(points.ToArray()).ToList();
             HashSet<PointGK> okP = new HashSet<PointGK>(hull);
+
+            List<List<PointGK>> outputLists = new List<List<PointGK>>();
+            List<List<PointGK>> innerLists = new List<List<PointGK>>();
+
             for(int i=0; i<hull.Count; i++)
             {
                 int ind0 = i;
@@ -247,32 +314,76 @@ namespace GrafikaKomputerowaDrawer
                 ind0 = points.FindIndex(p => p == hull[ind0]);
                 ind1 = points.FindIndex(p => p == hull[ind1]);
                 bool goOtherDirection = false;
-                if(Math.Abs(ind0 - ind1) != 1 && points[ind0].Distance(points[ind1]) >=  2 * offset)
-                {
-                    int maxInd = Math.Max(ind0, ind1);
-                    int minInd = Math.Min(ind0, ind1);
-                    for(int k=minInd + 1; k<maxInd; k++)
+                if(Math.Abs(ind0 - ind1) != 1)
+                    if(points[ind0].Distance(points[ind1]) >= 2 * offset)
                     {
-                        if (hull.Contains(points[k]))
+                        int maxInd = Math.Max(ind0, ind1);
+                        int minInd = Math.Min(ind0, ind1);
+                        for(int k=minInd + 1; k<maxInd; k++)
                         {
-                            goOtherDirection = true;
-                            break;
-                        }
-                        okP.Add(points[k]);
-                    }
-                    if(goOtherDirection)
-                    {
-                        for (int k = maxInd + 1; k != minInd; k++)
-                        {
-                            k %= points.Count;
-                            if (k == minInd) break;
+                            if (hull.Contains(points[k]))
+                            {
+                                goOtherDirection = true;
+                                break;
+                            }
                             okP.Add(points[k]);
                         }
+                        if(goOtherDirection)
+                        {
+                            for (int k = maxInd + 1; k != minInd; k++)
+                            {
+                                k %= points.Count;
+                                if (k == minInd) break;
+                                okP.Add(points[k]);
+                            }
+                        }
                     }
-                }
+                    else
+                    {
+                        List<PointGK> innerPart = new List<PointGK>();
+                        int maxInd = Math.Max(ind0, ind1);
+                        int minInd = Math.Min(ind0, ind1);
+                        for (int k = minInd + 1; k < maxInd; k++)
+                        {
+                            if (hull.Contains(points[k]))
+                            {
+                                goOtherDirection = true;
+                                break;
+                            }
+                            innerPart.Add(points[k]);
+                        }
+                        if (goOtherDirection)
+                        {
+                            for (int k = maxInd + 1; k != minInd; k++)
+                            {
+                                k %= points.Count;
+                                if (k == minInd) break;
+                                innerPart.Add(points[k]);
+                            }
+                        }
+                        if(innerPart.Count >= 3)
+                        {
+                            innerLists.Add(innerPart);
+                        }
+                    }
+                
             }
 
-            return this.points.FindAll(p => okP.Contains(p));
+            foreach (var innerPoly in innerLists)
+            {
+                var current = innerPoly;
+                var trueInner = hullOffset(current, offset);
+                while (trueInner[0].Count != current.Count)
+                {
+                    current = trueInner[0];
+                    trueInner = hullOffset(current, offset);
+                }
+                outputLists.Add(trueInner[0]);
+            }
+            //outputLists.AddRange(innerLists);
+            outputLists.Insert(0, this.points.FindAll(p => okP.Contains(p)));
+            
+            return outputLists;
         }
 
        
