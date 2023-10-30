@@ -23,7 +23,8 @@ namespace GrafikaKomputerowaDrawer
         SelectState,
         PointState,
         LineState,
-        PolygonState
+        PolygonState,
+        CircleState
     }
 
     public partial class GKDrawer : Form
@@ -70,6 +71,10 @@ namespace GrafikaKomputerowaDrawer
             {
                 this.Deserialize(".\\startData.xml");
             }
+            else
+            {
+                MessageBox.Show("Przenieœ plik \"startData.xml\" do folderu z plikami wykonywamlnymi, aby otworzyæ scenê startow¹!");
+            }
         }
 
         private void Canvas_Paint(object sender, PaintEventArgs e)
@@ -84,7 +89,7 @@ namespace GrafikaKomputerowaDrawer
                 if (drawOffsetPoly && obj.Type == ObjectTypeGK.Poly)
                 {
                     PolygonGK poly = obj as PolygonGK;
-                    if(poly.completed) poly.DrawOffsetPoly(e, drawingAlg, offSet);
+                    if (poly.completed) poly.DrawOffsetPoly(e, drawingAlg, offSet);
                 }
             }
             HashSet<ConstraintGK> consts = new HashSet<ConstraintGK>(points.Select(p => p.constraint).OfType<ConstraintGK>());
@@ -348,6 +353,33 @@ namespace GrafikaKomputerowaDrawer
         {
             offSet = (int)OffsetInput.Value;
             Canvas.Invalidate();
+        }
+
+        private void CircleButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (CircleButton.Checked)
+            {
+                windowState = DrawerState.CircleState;
+
+                CircleBox.Visible = true;
+
+            }
+            else
+            {
+                CircleBox.Visible = false;
+            }
+        }
+
+        private void RadiusBox_TextChanged(object sender, EventArgs e)
+        {
+            CircleGK circle = objects.Find(p=> p.IsSelected && p.Type == ObjectTypeGK.Circle) as CircleGK;
+            if (circle != null)
+            {
+                int.TryParse(RadiusBox.Text, out int rad);
+                circle.radius = rad;
+                Canvas.Invalidate();
+            }
+
         }
     }
     public class Display : Panel

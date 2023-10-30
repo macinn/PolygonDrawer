@@ -1,0 +1,48 @@
+ABY STARTOWA SCENA ZADZIAŁAŁA NALEŻY UMIEŚCIC "startData.xml" W FOLDERZE Z PLIKAMI WKONYWALNYMI
+
+GKDrawer, Skrzypczak Marcin
+Specyfikacja:
+1. Program spróbuje wczytać startową scenę z pliku "startData.xml" znajdującego się w folderze z resztą plików.
+2. Menu Strip:
+- Constraints on segment - zaznaczenie pokazuje pole umożliwiające dodawanie i usuwanie ograniczeń na krawędziach.
+- XML Serialization - możliwość zapisania obecnej sceny do pliku *.xml i wczytania sceny z pliku
+- Clear drawer - usunięcie wszystkich obiektów z obecnej sceny
+- Draw offset polygon - zaznaczenie pokazuje pole umożliwiające regulacje odsunięcia oraz sprawia, że dla każdego wielokąta rysyowny jest wielokąt odsunięty
+3. Stan okna:
+- Polygon - kliknięcie rozpoczna rysowanie wielokąta, każde następne dodaje wierzchołek, rysowanie jest przerywane kiedy wielokąt zostanie zamknięty
+- Line - klinięcie rozpoczyna rysowanie odcinka, następne wyznacza jego koniec
+- Point - kliknięcie dodaje punkt do sceny, kliknięcie na wielokąt lub 	odcinek powoduje dodanie punktu do tej struktury
+- Select - kliknięcie zaznacza obiekty, możliwy wybór punktów, 	odcików, wielokątów. Wciścnięcie myszy i poruszenie spowoduje przesunięcie zaznaczonych obiektów
+4. Dodatkowe opcje:
+- Snap to point - wyrównanie kliknięcia do istniejących punktów, z domyślną tolerancją 5px
+- Lock objects - uniemożliwia przesuwanie zaznaczonych obiektów
+5. Pole "Drawing":
+- Default - do rysowania odcinków używnay jest funkcja biblioteczna Graphics.DrawLine
+- Bresenham's - do rysowania używana jest własna implementacja algorytmy Bresenhama
+6. Pole "Constraint" (widoczne, gdy opcja "Constraints on segment"):
+-typ:
+	- Vertical - zaznaczona krawędź zostanie oznaczona jako pionowa
+	- Horizontal - krawędź zostanie oznaczona jako pozioma
+- Add constraint - dodaje ograniczenia dla zaznaczonej krawędzi
+- Remove - usuwa ograniczenie zaznaczonej krawędzie
+Krawędzie z ograniczeniami mogą być modyfikowane tylko w sposób zachowujący ograniczenie. Dodanie wierzchołka na krawędz z ograniczeniem lub usunięcie jednego z wierzchołków powoduje usunięcie ograniczenia. Ograniczenia są widoczne jako litery 'H' i 'V' oznaczające typ ograniczenia. Zaznaczenie nieprawidłowych punktów, odcinka, spowoduje wyświetlnie odpowiedniego błędu przy guziku Add lub Remove.
+7. Pole "OffsetPolygon" (widoczne, gdy opcja "Draw offset polygon"):
+Modyfikacja odsunięcia dla rysownych wielokątów odusniętych (min. 5 max. 150).
+8. Skróty klawiszowe:
+- Del - usunięcie zaznaczonych obiektów
+- Ctrl - w trybie Select zaznaczne są tylko punkty
+- Shift - w trybie Select poprzednio zaznaczone obiekty pozostają zaznaczone, w przypadku kliknięcia w następny obiekt
+
+
+Algorytm ograniczeń:
+	Ograniczenie posiada w swojej strukturze typ ograniczenia. Przy przesunięci krawędzi nie wpływa na przesunięcie całego obiektu, ale podczas przesuwania jednego z końców umożliwia zmianę tylko jednej ze współrzędnych punktu, tak aby ograniczenie pozostało spełnione.
+
+Algorytm rysowania wielokąta odsuniętego:
+	Przy pomocy otoczki wypukłej wielokąta znajdź "jaskinie" do którch prowadzący "przesmyk" ma szerokość mniejszą niż 2*offset (przy takiej szerokości wewnątrz "przesmyku" nie będzie właściwej krawędzi wielokąta odsuniętego). Rozdziel wierzchołki na te tworzące zewnętrzną otoczkę wielokąt oraz kolejne jaskinie, wierzchołki znajdujące się w "przesmykach" pomijamy.
+Dla każdej z listy wierzchołków wyznaczamy otoczkę w następujący sposób:
+	- łączymy wierzchołki krawędziami
+	- do każdej krawędzi wyznaczamy równoległą linię
+	- wyznaczamy przecięcia lini równoległych do sąsiadujących krawędzi
+	- wybieramy przecięcia które są oddalone od wielokąta o co najmniej offset - błąd zaokrągleń do inta
+	- wybrane punkty tworzą odpowiednio otoczkę zewnętrzną i otoczki wewnętrzne
+Dla otoczek wewnętrznych dodatkowo sprawdzamy czy punkty przecięcia znajdują się wewnątrz "jaskini"

@@ -7,7 +7,8 @@ namespace GrafikaKomputerowaDrawer
     {
         Vect,
         Point,
-        Poly
+        Poly,
+        Circle
     }
     public enum DrawingGK
     { 

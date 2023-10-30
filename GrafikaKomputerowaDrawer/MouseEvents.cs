@@ -10,11 +10,28 @@ namespace GrafikaKomputerowaDrawer
 {
     public partial class GKDrawer : Form
     {
+        CircleGK? tempCircle;
         private void Canvas_Click(object sender, EventArgs e)
         {
 
             switch (windowState)
             {
+                case DrawerState.CircleState:
+                    if (!IsDrawing)
+                    {
+                        IsDrawing = true;
+                        mouseDownPoint = GetNewPoint((MouseEventArgs)e);
+                        tempCircle = new CircleGK(mouseDownPoint, 0);
+                        objects.Add(tempCircle);
+                    }
+                    else
+                    {
+                        IsDrawing = false;
+                        PointGK endPoint = GetNewPoint((MouseEventArgs)e);
+                        int radius = (int)mouseDownPoint.Distance(endPoint);
+                        tempCircle.radius = radius;
+                    }
+                    break;
                 case DrawerState.LineState:
                     if (!IsDrawing)
                     {
@@ -47,6 +64,8 @@ namespace GrafikaKomputerowaDrawer
                         }
                     else
                     {
+                        CircleBox.Visible = false;
+                        CircleBox.Text = "";
                         HashSet<IObjectGK> objectsToBeSelected = new HashSet<IObjectGK>();
                         foreach (var obj in objects)
                         {
@@ -71,6 +90,15 @@ namespace GrafikaKomputerowaDrawer
 
                                     if (!AnyEdgeClicked) poly.IsSelected = saveClick;
                                     else objectsToBeSelected.Remove(obj);
+                                }
+                                if(obj.Type == ObjectTypeGK.Circle)
+                                {
+                                    if (obj.CheckClick((MouseEventArgs)e))
+                                    {
+                                        CircleGK circle = (CircleGK)obj;
+                                        CircleBox.Visible = true;
+                                        RadiusBox.Text = circle.radius.ToString();
+                                    }
                                 }
                             }
                         }
@@ -188,6 +216,16 @@ namespace GrafikaKomputerowaDrawer
             PointGK curPoint = new PointGK(e.X, e.Y);
             switch (windowState)
             {
+                case DrawerState.CircleState:
+                    if (IsDrawing)
+                    {
+                        //PointGK endPoint = GetNewPoint((MouseEventArgs)e);
+                        int radius = (int)mouseDownPoint.Distance(curPoint);
+                        tempCircle.radius = radius;
+                        RadiusBox.Text = radius.ToString();
+                        Canvas.Invalidate();
+                    }
+                    break;
                 case DrawerState.LineState:
                 case DrawerState.PolygonState:
                     if (IsDrawing)

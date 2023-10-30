@@ -33,6 +33,9 @@
             Canvas = new Display();
             flowLayoutPanel1 = new FlowLayoutPanel();
             PolygonButton = new RadioButton();
+            CircleButton = new RadioButton();
+            CircleBox = new GroupBox();
+            RadiusBox = new TextBox();
             LineButton = new RadioButton();
             PointButton = new RadioButton();
             SelectButton = new RadioButton();
@@ -65,6 +68,7 @@
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
             flowLayoutPanel1.SuspendLayout();
+            CircleBox.SuspendLayout();
             DrawingAlgorithmBox.SuspendLayout();
             ConstraintBox.SuspendLayout();
             OffsetPolyBox.SuspendLayout();
@@ -114,6 +118,8 @@
             flowLayoutPanel1.AutoScroll = true;
             flowLayoutPanel1.AutoSize = true;
             flowLayoutPanel1.Controls.Add(PolygonButton);
+            flowLayoutPanel1.Controls.Add(CircleButton);
+            flowLayoutPanel1.Controls.Add(CircleBox);
             flowLayoutPanel1.Controls.Add(LineButton);
             flowLayoutPanel1.Controls.Add(PointButton);
             flowLayoutPanel1.Controls.Add(SelectButton);
@@ -126,7 +132,7 @@
             flowLayoutPanel1.FlowDirection = FlowDirection.TopDown;
             flowLayoutPanel1.Location = new Point(0, 28);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(165, 623);
+            flowLayoutPanel1.Size = new Size(165, 664);
             flowLayoutPanel1.TabIndex = 0;
             // 
             // PolygonButton
@@ -142,10 +148,41 @@
             PolygonButton.UseVisualStyleBackColor = true;
             PolygonButton.CheckedChanged += PolygonButton_CheckedChanged;
             // 
+            // CircleButton
+            // 
+            CircleButton.AutoSize = true;
+            CircleButton.Location = new Point(3, 33);
+            CircleButton.Name = "CircleButton";
+            CircleButton.Size = new Size(67, 24);
+            CircleButton.TabIndex = 1007;
+            CircleButton.TabStop = true;
+            CircleButton.Text = "Circle";
+            CircleButton.UseVisualStyleBackColor = true;
+            CircleButton.CheckedChanged += CircleButton_CheckedChanged;
+            // 
+            // CircleBox
+            // 
+            CircleBox.Controls.Add(RadiusBox);
+            CircleBox.Location = new Point(3, 63);
+            CircleBox.Name = "CircleBox";
+            CircleBox.Size = new Size(148, 60);
+            CircleBox.TabIndex = 0;
+            CircleBox.TabStop = false;
+            CircleBox.Text = "Circle radius";
+            CircleBox.Visible = false;
+            // 
+            // RadiusBox
+            // 
+            RadiusBox.Location = new Point(11, 24);
+            RadiusBox.Name = "RadiusBox";
+            RadiusBox.Size = new Size(125, 27);
+            RadiusBox.TabIndex = 0;
+            RadiusBox.TextChanged += RadiusBox_TextChanged;
+            // 
             // LineButton
             // 
             LineButton.AutoSize = true;
-            LineButton.Location = new Point(3, 33);
+            LineButton.Location = new Point(3, 129);
             LineButton.Name = "LineButton";
             LineButton.Size = new Size(57, 24);
             LineButton.TabIndex = 1002;
@@ -156,7 +193,7 @@
             // PointButton
             // 
             PointButton.AutoSize = true;
-            PointButton.Location = new Point(3, 63);
+            PointButton.Location = new Point(3, 159);
             PointButton.Name = "PointButton";
             PointButton.Size = new Size(63, 24);
             PointButton.TabIndex = 1003;
@@ -167,7 +204,7 @@
             // SelectButton
             // 
             SelectButton.AutoSize = true;
-            SelectButton.Location = new Point(3, 93);
+            SelectButton.Location = new Point(3, 189);
             SelectButton.Name = "SelectButton";
             SelectButton.Size = new Size(70, 24);
             SelectButton.TabIndex = 1004;
@@ -180,7 +217,7 @@
             SnapBox.AutoSize = true;
             SnapBox.Checked = true;
             SnapBox.CheckState = CheckState.Checked;
-            SnapBox.Location = new Point(3, 123);
+            SnapBox.Location = new Point(3, 219);
             SnapBox.Name = "SnapBox";
             SnapBox.Size = new Size(121, 24);
             SnapBox.TabIndex = 4;
@@ -192,7 +229,7 @@
             LockBox.AutoSize = true;
             LockBox.Checked = true;
             LockBox.CheckState = CheckState.Checked;
-            LockBox.Location = new Point(3, 153);
+            LockBox.Location = new Point(3, 249);
             LockBox.Name = "LockBox";
             LockBox.Size = new Size(113, 24);
             LockBox.TabIndex = 6;
@@ -204,7 +241,7 @@
             DrawingAlgorithmBox.CausesValidation = false;
             DrawingAlgorithmBox.Controls.Add(BresButton);
             DrawingAlgorithmBox.Controls.Add(DefButton);
-            DrawingAlgorithmBox.Location = new Point(3, 183);
+            DrawingAlgorithmBox.Location = new Point(3, 279);
             DrawingAlgorithmBox.Name = "DrawingAlgorithmBox";
             DrawingAlgorithmBox.Size = new Size(148, 86);
             DrawingAlgorithmBox.TabIndex = 1000;
@@ -241,7 +278,7 @@
             ConstraintBox.Controls.Add(HorizontalConst1);
             ConstraintBox.Controls.Add(VerticalConst1);
             ConstraintBox.Controls.Add(ConstraintButton);
-            ConstraintBox.Location = new Point(3, 275);
+            ConstraintBox.Location = new Point(3, 371);
             ConstraintBox.Name = "ConstraintBox";
             ConstraintBox.Size = new Size(157, 146);
             ConstraintBox.TabIndex = 0;
@@ -293,7 +330,7 @@
             // OffsetPolyBox
             // 
             OffsetPolyBox.Controls.Add(OffsetInput);
-            OffsetPolyBox.Location = new Point(3, 427);
+            OffsetPolyBox.Location = new Point(3, 523);
             OffsetPolyBox.Name = "OffsetPolyBox";
             OffsetPolyBox.Size = new Size(148, 62);
             OffsetPolyBox.TabIndex = 1005;
@@ -315,7 +352,7 @@
             // PointBox
             // 
             PointBox.Controls.Add(PointTextBox);
-            PointBox.Location = new Point(3, 495);
+            PointBox.Location = new Point(3, 591);
             PointBox.Name = "PointBox";
             PointBox.Size = new Size(159, 70);
             PointBox.TabIndex = 1006;
@@ -422,6 +459,8 @@
             splitContainer1.ResumeLayout(false);
             flowLayoutPanel1.ResumeLayout(false);
             flowLayoutPanel1.PerformLayout();
+            CircleBox.ResumeLayout(false);
+            CircleBox.PerformLayout();
             DrawingAlgorithmBox.ResumeLayout(false);
             DrawingAlgorithmBox.PerformLayout();
             ConstraintBox.ResumeLayout(false);
@@ -470,5 +509,8 @@
         private NumericUpDown OffsetInput;
         private GroupBox PointBox;
         private TextBox PointTextBox;
+        private RadioButton CircleButton;
+        private GroupBox CircleBox;
+        private TextBox RadiusBox;
     }
 }
